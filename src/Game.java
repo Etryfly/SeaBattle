@@ -18,11 +18,12 @@ public class Game {
     }
 
     public boolean checkShipInsert(Ship ship) {
-        for (Ship s :
-                ships) {
+        Coordinate last = ship.getLastCoordinate();
+        if ( (last.getJ() > maxY ) || (last.getI() > maxX)) return false;
+        for (Ship s : ships) {
             ArrayList<Coordinate> area = s.getArea();
             for (Coordinate shipCoord : ship.getAllCoordinates()) {
-                if (shipCoord.getJ() > maxY || shipCoord.getI() > maxX) return false;
+
                 if (area.contains(shipCoord)) {
                     return false;
                 }
@@ -40,8 +41,8 @@ public class Game {
 
 
                 while (true) {
-                    int x = random.nextInt(9) ;
-                    int y = random.nextInt(9) ;
+                    int x = random.nextInt(10);
+                    int y = random.nextInt(10);
                     boolean align = random.nextBoolean();
                     Ship ship = new Ship(i, align, new Coordinate(x, y));
                     if (checkShipInsert(ship)) {

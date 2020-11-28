@@ -26,10 +26,15 @@ public class Ship {
         return hits != 0;
     }
 
-    public ArrayList<Coordinate> getAllCoordinates() {
+    public Coordinate getLastCoordinate() {
         Coordinate last;
         if(isHorizontal) last = new Coordinate(coordinate.getI() + hits, coordinate.getJ());
         else last = new Coordinate(coordinate.getI() , coordinate.getJ() + hits);
+        return last;
+    }
+
+    public ArrayList<Coordinate> getAllCoordinates() {
+        Coordinate last = getLastCoordinate();
         int I = coordinate.getI();
         int J = coordinate.getJ();
         int maxI = last.getI();

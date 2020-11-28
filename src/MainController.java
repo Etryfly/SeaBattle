@@ -34,12 +34,19 @@ public class MainController {
     }
 
     private void drawShips() {
-        for (Ship ship : game.getShips()) {
-            for (Coordinate coordinate : ship.getAllCoordinates()) {
-                userButtons[coordinate.getI()][coordinate.getJ()].setText(String.valueOf(ship.getHits()));
-                userButtons[coordinate.getI()][coordinate.getJ()].setStyle("-fx-background-color: #008000");
+        try {
+            for (Ship ship : game.getShips()) {
+                for (Coordinate coordinate : ship.getAllCoordinates()) {
+                    if (coordinate.getJ() > 9 || coordinate.getI() > 9) {
+                        System.out.println(123);
+                    }
+                    userButtons[coordinate.getI()][coordinate.getJ()].setText(String.valueOf(ship.getHits()));
+                    userButtons[coordinate.getI()][coordinate.getJ()].setStyle("-fx-background-color: #008000");
+                }
+                // break;
             }
-           // break;
+        } catch(ArrayIndexOutOfBoundsException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -59,22 +66,11 @@ public class MainController {
         disableCreateMenu();
         initGame();
         game.generateRandomShips();
-       // TEST_AREA();
         drawShips();
-
+        disableUserField();
     }
 
-    public void TEST_AREA() {
 
-        for (Ship ship : game.getShips()) {
-            for (Coordinate coordinate : ship.getArea()) {
-                userButtons[coordinate.getI()][coordinate.getJ()].setText(String.valueOf(ship.getHits()));
-                userButtons[coordinate.getI()][coordinate.getJ()].setStyle("-fx-background-color: red");
-            }
-            break;
-        }
-
-    }
 
     @FXML
     public void ConnectOnClick(ActionEvent actionEvent) {
@@ -94,6 +90,14 @@ public class MainController {
 
     private void buttonOnClick(Button button) {
 
+    }
+
+    private void disableUserField() {
+        for (int i = 0; i < userButtons.length; i++) {
+            for (int j = 0; j < userButtons[i].length; j++) {
+                userButtons[i][j].setDisable(true);
+            }
+        }
     }
 
     private void initGame() {
@@ -117,9 +121,9 @@ public class MainController {
     }
 
     public void initText(GridPane grid) {
-        for (int i = 1; i < 11; i++) {
+        for (int i = 0; i < 10; i++) {
             Label letter = new Label();
-            letter.setText(String.valueOf(Character.valueOf((char) ('A' + i - 1))));
+            letter.setText("  " + String.valueOf(Character.valueOf((char) ('A' + i))));
             Label number = new Label();
             number.setText(String.valueOf(i));
             grid.add(letter, i, 10);
