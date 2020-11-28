@@ -13,6 +13,8 @@ public class MainController {
 
     Connection connection = new Connection();
     Game game = new Game();
+    Button[][] userButtons = new Button[10][10];
+    Button[][] enemyButtons = new Button[10][10];
 
     @FXML
     public MenuItem hostMenu;
@@ -28,6 +30,17 @@ public class MainController {
     public void initialize() {
         initText(userGrid);
         initText(enemyGrid);
+        startGame();
+    }
+
+    private void drawShips() {
+        for (Ship ship : game.getShips()) {
+            for (Coordinate coordinate : ship.getAllCoordinates()) {
+                userButtons[coordinate.getI()][coordinate.getJ()].setText(String.valueOf(ship.getHits()));
+                userButtons[coordinate.getI()][coordinate.getJ()].setStyle("-fx-background-color: #008000");
+            }
+           // break;
+        }
     }
 
     @FXML
@@ -39,8 +52,27 @@ public class MainController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        startGame();
+    }
+
+    public void startGame() {
         disableCreateMenu();
         initGame();
+        game.generateRandomShips();
+       // TEST_AREA();
+        drawShips();
+
+    }
+
+    public void TEST_AREA() {
+
+        for (Ship ship : game.getShips()) {
+            for (Coordinate coordinate : ship.getArea()) {
+                userButtons[coordinate.getI()][coordinate.getJ()].setText(String.valueOf(ship.getHits()));
+                userButtons[coordinate.getI()][coordinate.getJ()].setStyle("-fx-background-color: red");
+            }
+            break;
+        }
 
     }
 
@@ -52,8 +84,7 @@ public class MainController {
             e.printStackTrace();
         }
 
-        disableCreateMenu();
-        initGame();
+        startGame();
     }
 
     private void disableCreateMenu() {
@@ -66,11 +97,12 @@ public class MainController {
     }
 
     private void initGame() {
-        initButtons(userGrid);
-        initButtons(enemyGrid);
+        initButtons(userGrid, userButtons);
+        initButtons(enemyGrid, enemyButtons);
+
     }
 
-    private void initButtons(GridPane grid) {
+    private void initButtons(GridPane grid, Button[][] buttons) {
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 Button button = new Button();
@@ -79,6 +111,7 @@ public class MainController {
                 button.setUserData(i + " " + j);
                 button.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> buttonOnClick(button));
                 grid.add(button, i,j);
+                buttons[i][j] = button;
             }
         }
     }
@@ -89,8 +122,8 @@ public class MainController {
             letter.setText(String.valueOf(Character.valueOf((char) ('A' + i - 1))));
             Label number = new Label();
             number.setText(String.valueOf(i));
-            grid.add(letter, i, 0);
-            grid.add(number, 0, i);
+            grid.add(letter, i, 10);
+            grid.add(number, 10, i);
         }
     }
 
