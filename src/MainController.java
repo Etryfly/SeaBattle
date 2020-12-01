@@ -39,9 +39,7 @@ public class MainController {
         try {
             for (Ship ship : game.getShips()) {
                 for (Coordinate coordinate : ship.getAllCoordinates()) {
-                    if (coordinate.getJ() > 9 || coordinate.getI() > 9) {
-                        System.out.println(123);
-                    }
+
                     userButtons[coordinate.getI()][coordinate.getJ()].setText(String.valueOf(ship.getHits()));
                     userButtons[coordinate.getI()][coordinate.getJ()].setStyle("-fx-background-color: #008000");
                 }
@@ -63,8 +61,11 @@ public class MainController {
         alert.showAndWait();
     }
 
-    public void attack(Button button) {
-
+    public boolean attack(Button button) { //return true if enemy ship hit
+        System.out.println("Attack");
+        boolean isHitted = false;
+        enemyGrid.setDisable(true);
+        turn = false;
         try {
             Coordinate coordinate = (Coordinate) button.getUserData();
             connection.sendCoordinate(coordinate);
@@ -74,14 +75,20 @@ public class MainController {
             switch (message) {
                 case HIT:
                     color = "red";
+                    isHitted = true;
+                    enemyGrid.setDisable(false);
+                    turn = true;
                     break;
 
                 case MISS:
                     color = "blue";
                     break;
 
-                case KILL:
+                case KILL :
                     color = "red";
+                    isHitted = true;
+                    enemyGrid.setDisable(false);
+                    turn = true;
                     break;
 
                 case WIN:
@@ -98,9 +105,13 @@ public class MainController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return isHitted;
     }
 
-    public void enemyAttack() {
+    public boolean enemyAttack() {
+        System.out.println("enemy attack");
+        boolean flag = true;
         try {
             Connection.Message message = connection.getMessage();
             switch (message) {
@@ -114,15 +125,16 @@ public class MainController {
 
                 case SHOT -> {
                     Coordinate coordinate = connection.getCoordinate();
-                    // System.out.println(coordinate);
                     Connection.Message responce = game.getAttack(coordinate);
                     if (responce.equals(Connection.Message.HIT)) {
+                        flag = false;
                         markButton(coordinate, userButtons, "red");
                     }
                     if (responce.equals(Connection.Message.MISS)) {
                         markButton(coordinate, userButtons, "blue");
                     }
                     if (responce.equals(Connection.Message.KILL)) {
+                        flag = false;
                         markButton(coordinate, userButtons, "red");
                     }
                     connection.sendMessage(responce);
@@ -131,8 +143,12 @@ public class MainController {
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
-
-
+        if (flag) {
+            enemyGrid.setDisable(false);
+            turn = true;
+            return false;
+        }
+        return true;
     }
 
 
@@ -176,7 +192,8 @@ public class MainController {
             e.printStackTrace();
         }
         turn = false;
-        enemyAttack();
+
+        while(enemyAttack());
         turn = true;
         enemyGrid.setDisable(false);
     }
@@ -187,14 +204,16 @@ public class MainController {
     }
 
     private void buttonOnClick(Button button) {
-        System.out.println(turn);
+
         if (turn) {
-            enemyGrid.setDisable(true);
-            turn = false;
-            attack(button);
-            enemyAttack();
-            enemyGrid.setDisable(false);
-            turn = true;
+
+            boolean flag = attack(button);
+
+
+            if (!flag) {
+                while (enemyAttack()) {
+                }
+            }
         }
     }
 

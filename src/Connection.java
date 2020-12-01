@@ -34,16 +34,14 @@ public class Connection {
     }
 
     public Message getMessage() throws IOException {
-        System.out.println("before read");
+
         String str = input.readLine();
-        System.out.println("after read");
-        System.out.println(str);
         return Message.valueOf(str);
     }
 
     public Coordinate getCoordinate() throws IOException, ParseException {
         String str = input.readLine();
-        System.out.println(str);
+
         return new Coordinate(str);
     }
 
