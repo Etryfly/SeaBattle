@@ -59,4 +59,20 @@ public class Game {
             }
         }
     }
+
+    public Connection.Message getAttack(Coordinate coordinate) {
+        for (Ship ship : ships) {
+            for (Coordinate myShipCoordinate : ship.getAllCoordinates()) {
+                if (myShipCoordinate.equals(coordinate)) {
+                    ship.hitDecrement();
+                    if (ship.getHits() == 0) {
+                        return Connection.Message.KILL;
+                    } else {
+                        return Connection.Message.HIT;
+                    }
+                }
+            }
+        }
+        return Connection.Message.MISS;
+    }
 }

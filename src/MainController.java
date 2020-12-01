@@ -1,5 +1,6 @@
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -7,9 +8,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 
 import java.io.IOException;
+import java.text.ParseException;
 
 public class MainController {
-
+    boolean turn;
 
     Connection connection = new Connection();
     Game game = new Game();
@@ -30,7 +32,7 @@ public class MainController {
     public void initialize() {
         initText(userGrid);
         initText(enemyGrid);
-        startGame();
+
     }
 
     private void drawShips() {
@@ -50,17 +52,91 @@ public class MainController {
         }
     }
 
-    @FXML
-    public void HostOnClick(ActionEvent actionEvent) {
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Test Connection");
+
+        // Header Text: null
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+
+        alert.showAndWait();
+    }
+
+    public void attack(Button button) {
+
         try {
-            connection.createServer();
-        } catch (Connection.SocketAlreadyCreated socketAlreadyCreated) {
-            socketAlreadyCreated.printStackTrace();
+            Coordinate coordinate = (Coordinate) button.getUserData();
+            connection.sendCoordinate(coordinate);
+
+            String color = "black";
+            Connection.Message message = connection.getMessage();
+            switch (message) {
+                case HIT:
+                    color = "red";
+                    break;
+
+                case MISS:
+                    color = "blue";
+                    break;
+
+                case KILL:
+                    color = "red";
+                    break;
+
+                case WIN:
+
+                    break;
+
+                case LOSE:
+
+                    break;
+
+            }
+            markButton(coordinate, enemyButtons, color);
+            showAlert(message.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        startGame();
     }
+
+    public void enemyAttack() {
+        try {
+            Connection.Message message = connection.getMessage();
+            switch (message) {
+                case LOSE -> {
+                    break;
+                }
+
+                case WIN -> {
+                    break;
+                }
+
+                case SHOT -> {
+                    Coordinate coordinate = connection.getCoordinate();
+                    // System.out.println(coordinate);
+                    Connection.Message responce = game.getAttack(coordinate);
+                    if (responce.equals(Connection.Message.HIT)) {
+                        markButton(coordinate, userButtons, "red");
+                    }
+                    if (responce.equals(Connection.Message.MISS)) {
+                        markButton(coordinate, userButtons, "blue");
+                    }
+                    if (responce.equals(Connection.Message.KILL)) {
+                        markButton(coordinate, userButtons, "red");
+                    }
+                    connection.sendMessage(responce);
+                }
+            }
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+
+
 
     public void startGame() {
         disableCreateMenu();
@@ -70,7 +146,9 @@ public class MainController {
         disableUserField();
     }
 
-
+    public void markButton(Coordinate coordinate, Button[][] buttons, String color) {
+        buttons[coordinate.getI()][coordinate.getJ()].setStyle("-fx-background-color: " + color);
+    }
 
     @FXML
     public void ConnectOnClick(ActionEvent actionEvent) {
@@ -79,8 +157,28 @@ public class MainController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        turn = true;
 
         startGame();
+    }
+
+
+    @FXML
+    public void HostOnClick(ActionEvent actionEvent) {
+        startGame();
+        enemyGrid.setDisable(true);
+        try {
+            connection.createServer();
+
+        } catch (Connection.SocketAlreadyCreated socketAlreadyCreated) {
+            socketAlreadyCreated.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        turn = false;
+        enemyAttack();
+        turn = true;
+        enemyGrid.setDisable(false);
     }
 
     private void disableCreateMenu() {
@@ -89,7 +187,15 @@ public class MainController {
     }
 
     private void buttonOnClick(Button button) {
-
+        System.out.println(turn);
+        if (turn) {
+            enemyGrid.setDisable(true);
+            turn = false;
+            attack(button);
+            enemyAttack();
+            enemyGrid.setDisable(false);
+            turn = true;
+        }
     }
 
     private void disableUserField() {
@@ -112,7 +218,7 @@ public class MainController {
                 Button button = new Button();
                 button.setMaxHeight(Double.MAX_VALUE);
                 button.setMaxWidth(Double.MAX_VALUE);
-                button.setUserData(i + " " + j);
+                button.setUserData(new Coordinate(i,j));
                 button.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> buttonOnClick(button));
                 grid.add(button, i,j);
                 buttons[i][j] = button;

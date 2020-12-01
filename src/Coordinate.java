@@ -1,3 +1,4 @@
+import java.text.ParseException;
 import java.util.Objects;
 
 public class Coordinate {
@@ -6,6 +7,18 @@ public class Coordinate {
     public Coordinate(int i, int j) {
         this.i = i;
         this.j = j;
+    }
+
+    public Coordinate(String str) throws ParseException {
+        String[] arr = str.split(" ");
+        if (arr.length != 2) throw new ParseException(str, 0);
+        try {
+            i = Integer.parseInt(arr[0]);
+            j = Integer.parseInt(arr[1]);
+
+        } catch (NumberFormatException e) {
+            throw new ParseException(str, 0);
+        }
     }
 
     public int getI() {
@@ -37,5 +50,13 @@ public class Coordinate {
     @Override
     public int hashCode() {
         return Objects.hash(i, j);
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(i);
+        sb.append(" ");
+        sb.append(j);
+        return sb.toString();
     }
 }
