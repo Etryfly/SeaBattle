@@ -51,6 +51,11 @@ public class Connection {
         output.flush();
     }
 
+    public void close() throws IOException {
+        output.close();
+        input.close();
+    }
+
     public void sendCoordinate(Coordinate coordinate) throws IOException {
         sendMessage(Message.SHOT);
         output.write(coordinate.toString());
