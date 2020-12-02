@@ -2,19 +2,21 @@ import java.util.ArrayList;
 
 public class Ship {
     private Coordinate coordinate;
+    private int size;
     private int hits;
     public boolean isHorizontal;
 
 
 
 
-    public int getHits() {
-        return hits;
+    public int getSize() {
+        return size;
     }
 
-    public Ship(int hits, boolean isHorizontal, Coordinate coord) {
+    public Ship(int size, boolean isHorizontal, Coordinate coord) {
         coordinate = coord;
-        this.hits = hits;
+        this.size = size;
+        hits = size;
         this.isHorizontal = isHorizontal;
     }
 
@@ -23,13 +25,14 @@ public class Ship {
     }
 
     public boolean isAlive() {
+        System.out.println(hits);
         return hits != 0;
     }
 
     public Coordinate getLastCoordinate() {
         Coordinate last;
-        if(isHorizontal) last = new Coordinate(coordinate.getI() + hits, coordinate.getJ());
-        else last = new Coordinate(coordinate.getI() , coordinate.getJ() + hits);
+        if(isHorizontal) last = new Coordinate(coordinate.getI() + size, coordinate.getJ());
+        else last = new Coordinate(coordinate.getI() , coordinate.getJ() + size);
         return last;
     }
 
@@ -57,8 +60,8 @@ public class Ship {
 
     public ArrayList<Coordinate> getArea() {
         Coordinate last;
-        if(isHorizontal) last = new Coordinate(coordinate.getI() + hits, coordinate.getJ());
-        else last = new Coordinate(coordinate.getI() , coordinate.getJ() + hits);
+        if(isHorizontal) last = new Coordinate(coordinate.getI() + size, coordinate.getJ());
+        else last = new Coordinate(coordinate.getI() , coordinate.getJ() + size);
         int I = coordinate.getI() - 1;
         I = (I < 0) ? 0 : I;
         int J = coordinate.getJ() - 1;

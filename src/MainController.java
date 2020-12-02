@@ -1,3 +1,4 @@
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -40,7 +41,7 @@ public class MainController {
             for (Ship ship : game.getShips()) {
                 for (Coordinate coordinate : ship.getAllCoordinates()) {
 
-                    userButtons[coordinate.getI()][coordinate.getJ()].setText(String.valueOf(ship.getHits()));
+                    userButtons[coordinate.getI()][coordinate.getJ()].setText(String.valueOf(ship.getSize()));
                     userButtons[coordinate.getI()][coordinate.getJ()].setStyle("-fx-background-color: #008000");
                 }
                 // break;
@@ -62,7 +63,7 @@ public class MainController {
     }
 
     public boolean attack(Button button) { //return true if enemy ship hit
-        System.out.println("Attack");
+
         boolean isHitted = false;
         enemyGrid.setDisable(true);
         turn = false;
@@ -96,6 +97,11 @@ public class MainController {
                     break;
 
                 case LOSE:
+                    enemyGrid.setDisable(true);
+                    showAlert("YOU WIN");
+                    connection.close();
+                    Platform.exit();
+                    System.exit(0);
 
                     break;
 
@@ -110,12 +116,13 @@ public class MainController {
     }
 
     public boolean enemyAttack() {
-        System.out.println("enemy attack");
+        boolean close = false;
         boolean flag = true;
         try {
             Connection.Message message = connection.getMessage();
             switch (message) {
                 case LOSE -> {
+                    System.out.println("TEST");
                     break;
                 }
 
@@ -137,7 +144,20 @@ public class MainController {
                         flag = false;
                         markButton(coordinate, userButtons, "red");
                     }
+                    if (responce.equals(Connection.Message.LOSE)) {
+
+                        markButton(coordinate, userButtons, "red");
+                        enemyGrid.setDisable(true);
+                        showAlert("YOU LOSE");
+                        close = true;
+                    }
                     connection.sendMessage(responce);
+                    if (close) {
+                        connection.close();
+                        Platform.exit();
+                        System.exit(0);
+
+                    }
                 }
             }
         } catch (IOException | ParseException e) {
@@ -211,7 +231,7 @@ public class MainController {
 
 
             if (!flag) {
-                while (enemyAttack()) {
+                 while (enemyAttack()) {
                 }
             }
         }

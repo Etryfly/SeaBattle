@@ -36,8 +36,10 @@ public class Game {
     public void generateRandomShips() {
 
         Random random = new Random();
-        for (int i = 4; i > 0; i--) {
+        //for (int i = 4; i > 0; i--) {
+        for (int i = 1; i > 0; i--) {
             for (int j = 1; j < 6-i; j++) {
+
 
 
                 while (true) {
@@ -60,12 +62,20 @@ public class Game {
         }
     }
 
+    private boolean isAllShipsKilled() {
+        for (Ship ship : ships) {
+            if (ship.isAlive()) return false;
+        }
+        return true;
+    }
+
     public Connection.Message getAttack(Coordinate coordinate) {
         for (Ship ship : ships) {
             for (Coordinate myShipCoordinate : ship.getAllCoordinates()) {
                 if (myShipCoordinate.equals(coordinate)) {
                     ship.hitDecrement();
-                    if (ship.getHits() == 0) {
+                    if (!ship.isAlive()) {
+                        if (isAllShipsKilled()) return Connection.Message.LOSE;
                         return Connection.Message.KILL;
                     } else {
                         return Connection.Message.HIT;
