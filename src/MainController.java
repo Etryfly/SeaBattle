@@ -55,7 +55,6 @@ public class MainController {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Test Connection");
 
-        // Header Text: null
         alert.setHeaderText(null);
         alert.setContentText(message);
 
@@ -92,10 +91,6 @@ public class MainController {
                     turn = true;
                     break;
 
-                case WIN:
-
-                    break;
-
                 case LOSE:
                     enemyGrid.setDisable(true);
                     showAlert("YOU WIN");
@@ -121,15 +116,6 @@ public class MainController {
         try {
             Connection.Message message = connection.getMessage();
             switch (message) {
-                case LOSE -> {
-                    System.out.println("TEST");
-                    break;
-                }
-
-                case WIN -> {
-                    break;
-                }
-
                 case SHOT -> {
                     Coordinate coordinate = connection.getCoordinate();
                     Connection.Message responce = game.getAttack(coordinate);
